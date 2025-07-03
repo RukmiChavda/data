@@ -8,6 +8,7 @@ fi
 
 USERNAME="$1"
 DISPLAY_NUM="$2"
+PORT=$((5900 + DISPLAY_NUM))
 SERVICE_NAME="vnc-${USERNAME}.service"
 SERVICE_PATH="/etc/systemd/system/${SERVICE_NAME}"
 
@@ -42,4 +43,9 @@ sudo systemctl enable "$SERVICE_NAME"
 echo "Starting $SERVICE_NAME..."
 sudo systemctl start "$SERVICE_NAME"
 
-echo "✅ VNC service for $USERNAME on :$DISPLAY_NUM has been created and started."
+# Configure UFW to allow the correct VNC port
+echo "Allowing TCP port $PORT through UFW..."
+sudo ufw allow ${PORT}/tcp
+sudo ufw reload
+
+echo "VNC service for $USERNAME on :$DISPLAY_NUM has been created, started, and UFW updated."
