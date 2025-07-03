@@ -1,0 +1,31 @@
+# Set variables (these can also be passed via command line using -set)
+set verilog_files top.v
+set top_module top
+set liberty_file /path/to/your.lib
+
+# Read the RTL source
+read_verilog $verilog_files
+
+# Define the top module
+hierarchy -top $top_module
+
+# Perform generic synthesis
+proc; opt; fsm; opt; memory; opt
+
+# Map to generic gates
+techmap; opt
+
+# Map to standard cell library
+read_liberty -lib $liberty_file
+dfflibmap -liberty $liberty_file
+
+# Final optimizations
+abc -liberty $liberty_file
+clean
+
+# Write synthesized netlist
+write_verilog synth_netlist.v
+
+# Write synthesis reports
+stat -top $top_module
+show -format dot -prefix top_synth  # optional: generates schematic
